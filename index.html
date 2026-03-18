@@ -278,7 +278,7 @@ tbody tr:nth-child(even){background:#fafbfd;}
 .di-table td{padding:5px 4px;border-bottom:1px solid #f1f5f9;text-align:center;vertical-align:middle;}
 .di-inp{padding:5px 6px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;width:100%;background:#fafbfc;text-align:center;}
 .di-inp:focus{border-color:var(--blue);outline:none;background:#fff;}
-.di-gr{width:48px;font-size:14px;font-weight:800;color:var(--navy);}
+.di-gr{font-size:13px;font-weight:800;color:var(--navy);}
 .di-del{background:none;border:none;cursor:pointer;color:#fca5a5;font-size:16px;font-weight:700;padding:2px 6px;}
 .di-del:hover{color:#dc2626;}
 .di-add-btn{width:100%;padding:8px;border:1.5px dashed #cbd5e1;border-radius:8px;background:#f8fafc;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;transition:.15s;}
@@ -360,6 +360,50 @@ tbody tr:nth-child(even){background:#fafbfd;}
       <button class="upload-btn" id="uploadBtn">📁 엑셀 성적 파일 올리기</button>
     </div>
 
+    <!-- ── 항상 표시: 수능 예상 등급 + 비교과 활동 ── -->
+    <div class="lsec no-print">
+      <div class="lsec-title">수능 예상 등급 <span style="font-size:9px;font-weight:400;color:var(--sub2);">(수능 최저 충족 분석)</span></div>
+      <div class="suneung-grid">
+        <div class="suneung-item"><label>국어</label><input class="inp" id="snKor" type="number" min="1" max="9" placeholder="1~9"></div>
+        <div class="suneung-item"><label>수학</label><input class="inp" id="snMath" type="number" min="1" max="9" placeholder="1~9"></div>
+        <div class="suneung-item"><label>영어</label><input class="inp" id="snEng" type="number" min="1" max="9" placeholder="1~9"></div>
+        <div class="suneung-item"><label>탐구①</label><input class="inp" id="snT1" type="number" min="1" max="9" placeholder="1~9"></div>
+        <div class="suneung-item"><label>탐구②</label><input class="inp" id="snT2" type="number" min="1" max="9" placeholder="1~9"></div>
+      </div>
+    </div>
+
+    <div class="lsec no-print">
+      <div class="lsec-title">비교과 활동 <span style="font-size:9px;font-weight:400;color:var(--sub2);">(종합전형 경쟁력 반영)</span></div>
+      <div class="bk-row">
+        <div class="bk-item"><label>📖 세부능력특기사항</label>
+          <select class="inp" id="bkSeTeuk" style="width:auto;">
+            <option value="3">매우 우수</option>
+            <option value="2" selected>우수</option>
+            <option value="1">보통</option>
+            <option value="0">미흡</option>
+          </select>
+        </div>
+        <div class="bk-item"><label>🎭 동아리 활동</label>
+          <select class="inp" id="bkDongari" style="width:auto;">
+            <option value="3">우수 (전공연계)</option>
+            <option value="2" selected>보통</option>
+            <option value="1">미흡</option>
+          </select>
+        </div>
+        <div class="bk-item"><label>🤝 봉사활동 시간</label>
+          <input class="inp" id="bkBongsa" type="number" min="0" placeholder="예: 50" style="width:90px;text-align:center;">
+        </div>
+        <div class="bk-item"><label>🏆 수상 실적</label>
+          <select class="inp" id="bkSusang" style="width:auto;">
+            <option value="2">우수 (3개 이상)</option>
+            <option value="1" selected>보통 (1~2개)</option>
+            <option value="0">없음</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 성적 로드 후 표시: 요약·강약점·메모 ── -->
     <div id="leftSummary" style="display:none;">
       <div class="lsec">
         <div class="lsec-title">성적 요약</div>
@@ -373,50 +417,6 @@ tbody tr:nth-child(even){background:#fafbfd;}
         <div class="lsec-title">상담 메모</div>
         <div style="margin-bottom:8px;"><label style="font-size:11px;color:var(--sub2);font-weight:700;display:block;margin-bottom:4px;">📝 상담 내용</label><textarea class="inp" id="memo1" rows="4" placeholder="상담 내용, 특이사항..."></textarea></div>
         <div><label style="font-size:11px;color:var(--sub2);font-weight:700;display:block;margin-bottom:4px;">🎯 진학 지도 방향</label><textarea class="inp" id="memo2" rows="4" placeholder="목표 대학, 지도 방향..."></textarea></div>
-      </div>
-
-      <!-- 수능 예상 등급 입력 -->
-      <div class="lsec no-print">
-        <div class="lsec-title">수능 예상 등급 <span style="font-size:9px;font-weight:400;color:var(--sub2);">(수능 최저 충족 분석)</span></div>
-        <div class="suneung-grid">
-          <div class="suneung-item"><label>국어</label><input class="inp" id="snKor" type="number" min="1" max="9" placeholder="1~9"></div>
-          <div class="suneung-item"><label>수학</label><input class="inp" id="snMath" type="number" min="1" max="9" placeholder="1~9"></div>
-          <div class="suneung-item"><label>영어</label><input class="inp" id="snEng" type="number" min="1" max="9" placeholder="1~9"></div>
-          <div class="suneung-item"><label>탐구①</label><input class="inp" id="snT1" type="number" min="1" max="9" placeholder="1~9"></div>
-          <div class="suneung-item"><label>탐구②</label><input class="inp" id="snT2" type="number" min="1" max="9" placeholder="1~9"></div>
-        </div>
-      </div>
-
-      <!-- 비교과 활동 입력 -->
-      <div class="lsec no-print">
-        <div class="lsec-title">비교과 활동 <span style="font-size:9px;font-weight:400;color:var(--sub2);">(종합전형 경쟁력 반영)</span></div>
-        <div class="bk-row">
-          <div class="bk-item"><label>📖 세부능력특기사항</label>
-            <select class="inp" id="bkSeTeuk" style="width:auto;">
-              <option value="3">매우 우수</option>
-              <option value="2" selected>우수</option>
-              <option value="1">보통</option>
-              <option value="0">미흡</option>
-            </select>
-          </div>
-          <div class="bk-item"><label>🎭 동아리 활동</label>
-            <select class="inp" id="bkDongari" style="width:auto;">
-              <option value="3">우수 (전공연계)</option>
-              <option value="2" selected>보통</option>
-              <option value="1">미흡</option>
-            </select>
-          </div>
-          <div class="bk-item"><label>🤝 봉사활동 시간</label>
-            <input class="inp" id="bkBongsa" type="number" min="0" placeholder="예: 50" style="width:90px;text-align:center;">
-          </div>
-          <div class="bk-item"><label>🏆 수상 실적</label>
-            <select class="inp" id="bkSusang" style="width:auto;">
-              <option value="2">우수 (3개 이상)</option>
-              <option value="1" selected>보통 (1~2개)</option>
-              <option value="0">없음</option>
-            </select>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -468,12 +468,12 @@ tbody tr:nth-child(even){background:#fafbfd;}
         <table class="di-table">
           <thead>
             <tr>
-              <th style="text-align:left;padding-left:6px;width:34%">교과·과목</th>
-              <th style="width:14%">단위</th>
-              <th style="width:20%">석차</th>
-              <th style="width:20%">재적수</th>
+              <th style="text-align:left;padding-left:6px;width:28%">교과·과목</th>
+              <th style="width:9%">단위</th>
+              <th style="width:22%">석차</th>
+              <th style="width:22%">재적수</th>
               <th style="width:12%">등급</th>
-              <th style="width:10%"></th>
+              <th style="width:7%"></th>
             </tr>
           </thead>
           <tbody id="diRows">
@@ -1513,8 +1513,8 @@ function addDirectRow(sG, sN, u) {
   tr.innerHTML =
     '<td><input class="di-inp" id="'+id+'_sN" placeholder="과목명" value="'+(sN||'')+'"><br>'+selHtml+'</td>'
     +'<td><input class="di-inp di-gr" id="'+id+'_u" type="number" min="1" max="8" value="'+(u||4)+'" placeholder="단위"></td>'
-    +'<td><input class="di-inp di-gr" id="'+id+'_rank" type="number" min="1" placeholder="석차" style="color:var(--blue);font-size:14px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
-    +'<td><input class="di-inp" id="'+id+'_t" type="number" min="1" placeholder="재적수" style="font-size:11px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
+    +'<td><input class="di-inp" id="'+id+'_rank" type="number" min="1" placeholder="예:15" style="color:var(--blue);font-size:13px;font-weight:800;min-width:52px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
+    +'<td><input class="di-inp" id="'+id+'_t" type="number" min="1" placeholder="예:150" style="font-size:12px;min-width:52px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
     +'<td><span id="'+id+'_grDisp" style="font-size:15px;font-weight:900;color:var(--red);">-</span></td>'
     +'<td><button class="di-del" onclick="removeDirectRow(\''+id+'\')">✕</button></td>';
 
