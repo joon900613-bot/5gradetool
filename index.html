@@ -266,6 +266,27 @@ tbody tr:nth-child(even){background:#fafbfd;}
 .sc .sct{font-size:9px;font-weight:700;color:var(--sub);margin-bottom:4px;}
 .sc .scv{font-size:12px;font-weight:800;color:var(--navy);}
 
+/* 입력 모드 탭 */
+.mode-tabs{display:flex;gap:4px;padding:12px 14px 0;}
+.mode-tab{flex:1;padding:8px 4px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;background:#f8fafc;color:var(--sub);transition:.15s;text-align:center;}
+.mode-tab.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+.mode-tab:hover:not(.on){background:#eff6ff;border-color:#93c5fd;color:var(--navy);}
+
+/* 직접 입력 폼 */
+.di-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;}
+.di-table th{background:#f1f5f9;padding:7px 6px;font-size:11px;font-weight:700;color:var(--sub);border-bottom:2px solid #e2e8f0;text-align:center;}
+.di-table td{padding:5px 4px;border-bottom:1px solid #f1f5f9;text-align:center;vertical-align:middle;}
+.di-inp{padding:5px 6px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;width:100%;background:#fafbfc;text-align:center;}
+.di-inp:focus{border-color:var(--blue);outline:none;background:#fff;}
+.di-gr{width:48px;font-size:14px;font-weight:800;color:var(--navy);}
+.di-del{background:none;border:none;cursor:pointer;color:#fca5a5;font-size:16px;font-weight:700;padding:2px 6px;}
+.di-del:hover{color:#dc2626;}
+.di-add-btn{width:100%;padding:8px;border:1.5px dashed #cbd5e1;border-radius:8px;background:#f8fafc;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;transition:.15s;}
+.di-add-btn:hover{border-color:var(--blue);color:var(--blue);background:#eff6ff;}
+.di-start-btn{width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#1565c0,#1a237e);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+.di-start-btn:hover{filter:brightness(1.1);}
+.di-notice{font-size:10px;color:var(--sub2);line-height:1.6;padding:8px;background:#fffbeb;border-radius:6px;border:1px solid #fde68a;margin-bottom:10px;}
+
 /* 인쇄 헤더 (화면에서는 숨김) */
 .print-hd{display:none;}
 @media print{
@@ -400,11 +421,66 @@ tbody tr:nth-child(even){background:#fafbfd;}
     </div>
 
     <div id="leftUpload">
-      <div class="upzone" id="upzone">
-        <div style="font-size:26px;margin-bottom:8px;">📂</div>
-        <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:6px;">클릭하거나 파일을 드래그하세요</div>
-        <div class="guide-path">UNIV → 성적관리 → 학생부성적관리<br>[교과/비교과] → 학생선택 → <span style="color:var(--red)">[엑셀저장]</span></div>
-        <div style="font-size:11px;color:var(--sub2);margin-top:6px;">.xls · .xlsx · .csv 지원</div>
+      <!-- 입력 모드 탭 -->
+      <div class="mode-tabs no-print">
+        <button class="mode-tab on" id="modeExcel" onclick="switchInputMode('excel')">📁 엑셀 업로드</button>
+        <button class="mode-tab" id="modeDirect" onclick="switchInputMode('direct')">✏️ 직접 입력</button>
+      </div>
+
+      <!-- 엑셀 업로드 존 -->
+      <div id="excelZone">
+        <div class="upzone" id="upzone">
+          <div style="font-size:26px;margin-bottom:8px;">📂</div>
+          <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:6px;">클릭하거나 파일을 드래그하세요</div>
+          <div class="guide-path">UNIV → 성적관리 → 학생부성적관리<br>[교과/비교과] → 학생선택 → <span style="color:var(--red)">[엑셀저장]</span></div>
+          <div style="font-size:11px;color:var(--sub2);margin-top:6px;">.xls · .xlsx · .csv 지원</div>
+        </div>
+      </div>
+
+      <!-- 직접 입력 존 -->
+      <div id="directZone" style="display:none;padding:14px;">
+        <div class="di-notice">
+          ✏️ 성적이 없는 1학년 학생 또는 예상 등급 기반 상담에 활용하세요.<br>
+          등급만 입력하면 전형분석·목표대학·지원전략을 바로 확인할 수 있습니다.
+        </div>
+
+        <!-- 학년/학기 선택 -->
+        <div class="if-row" style="margin-bottom:10px;">
+          <div class="ii">
+            <label>학년</label>
+            <select class="inp" id="diGrade">
+              <option value="1">1학년</option>
+              <option value="2">2학년</option>
+              <option value="3">3학년</option>
+            </select>
+          </div>
+          <div class="ii">
+            <label>학기</label>
+            <select class="inp" id="diSem">
+              <option value="1">1학기</option>
+              <option value="2">2학기</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 과목 목록 -->
+        <table class="di-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding-left:6px;width:34%">교과·과목</th>
+              <th style="width:20%">단위</th>
+              <th style="width:22%">등급</th>
+              <th style="width:24%">재적수</th>
+              <th style="width:14%"></th>
+            </tr>
+          </thead>
+          <tbody id="diRows">
+            <!-- 기본 5과목 행 -->
+          </tbody>
+        </table>
+
+        <button class="di-add-btn" onclick="addDirectRow()">+ 과목 추가</button>
+        <button class="di-start-btn" onclick="startDirectAnalysis()">📊 분석 시작</button>
       </div>
     </div>
   </div>
@@ -770,6 +846,10 @@ function resetAll() {
   });
   document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('exF').value = '';
+  // 직접 입력 초기화
+  var diRows = document.getElementById('diRows');
+  if (diRows) diRows.innerHTML = '';
+  switchInputMode('excel');
   document.getElementById('rightEmpty').style.display = 'flex';
   document.getElementById('resultArea').style.display = 'none';
   document.getElementById('leftSummary').style.display = 'none';
@@ -987,8 +1067,11 @@ function renderTable() {
       rowBg = chg2 < 0 ? 'background:rgba(16,185,129,.06);' : chg2 > 0 ? 'background:rgba(239,68,68,.06);' : '';
     }
 
+    // 수동 입력 행 표시
+    var isManual = !!d._manual;
+
     // 조절 버튼
-    var canSim = !isNaN(gn) && !isNaN(parseInt(d.t)) && parseInt(d.t) > 0;
+    var canSim = !isManual && !isNaN(gn) && !isNaN(parseInt(d.t)) && parseInt(d.t) > 0;
     var thisDelta = (simDelta[idx] || 0) + globalDelta;
     var deltaDisp = thisDelta === 0 ? ''
       : '<div style="font-size:10px;font-weight:700;color:'+(thisDelta<0?'#16a34a':'#dc2626')+';">'+
@@ -1002,8 +1085,9 @@ function renderTable() {
         + '</div>'
       : '<span style="color:#cbd5e1;font-size:12px;">-</span>';
 
-    h += '<tr style="'+rowBg+'">'
-      + '<td><b>'+d.g+'</b></td><td class="sem">'+d.sm+'</td><td style="color:#475569;font-size:12px;">'+d.sG+'</td>'
+    var manualBadge = isManual ? '<span style="font-size:9px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:700;">입력</span>' : '';
+    h += '<tr style="'+rowBg+(isManual?'background:rgba(254,243,199,.3);':'')+'">'
+      + '<td><b>'+d.g+'</b></td><td class="sem">'+d.sm+manualBadge+'</td><td style="color:#475569;font-size:12px;">'+d.sG+'</td>'
       + '<td style="text-align:left;padding-left:10px;font-weight:600;">'+d.sN+'</td>'
       + '<td>'+d.u+'</td>'
       + '<td style="color:var(--blue);font-weight:800;font-size:14px;">'+d.r+'</td>'
@@ -1376,6 +1460,107 @@ function uniChart(title,data,uG){
       +'<div style="position:absolute;bottom:100%;left:'+(L+W/2)+'%;margin-bottom:5px;font-size:9.5px;font-weight:700;color:#333;transform:rotate(-55deg);transform-origin:bottom left;white-space:nowrap;">'+d[3]+'</div>';
   });
   return h+'</div></div>';
+}
+
+// ════════════════════════════════════════════
+// 직접 입력 모드
+// ════════════════════════════════════════════
+var DI_DEFAULTS = [
+  {sG:'국어', sN:'공통국어', u:4},
+  {sG:'수학', sN:'공통수학Ⅰ', u:4},
+  {sG:'영어', sN:'공통영어Ⅰ', u:4},
+  {sG:'사회(역사/도덕포함)', sN:'통합사회Ⅰ', u:3},
+  {sG:'과학', sN:'통합과학Ⅰ', u:3}
+];
+var diRowIdx = 0;
+
+function switchInputMode(mode) {
+  document.getElementById('excelZone').style.display  = mode === 'excel' ? '' : 'none';
+  document.getElementById('directZone').style.display = mode === 'direct' ? '' : 'none';
+  document.getElementById('modeExcel').classList.toggle('on', mode === 'excel');
+  document.getElementById('modeDirect').classList.toggle('on', mode === 'direct');
+  if (mode === 'direct' && document.getElementById('diRows').children.length === 0) {
+    initDirectRows();
+  }
+}
+
+function initDirectRows() {
+  var tbody = document.getElementById('diRows');
+  tbody.innerHTML = '';
+  DI_DEFAULTS.forEach(function(d) { addDirectRow(d.sG, d.sN, d.u); });
+}
+
+function addDirectRow(sG, sN, u) {
+  var id = 'dr' + (diRowIdx++);
+  var tbody = document.getElementById('diRows');
+  var tr = document.createElement('tr');
+  tr.id = id;
+
+  // 교과 선택 옵션
+  var subjectOpts = [
+    ['국어','국어'],['수학','수학'],['영어','영어'],
+    ['사회(역사/도덕포함)','사회'],['과학','과학'],
+    ['체육','체육'],['예술','예술'],['기술·가정/제2외국어/한문/교양','기타']
+  ];
+  var selHtml = '<select class="di-inp" style="width:100%;font-size:11px;" id="'+id+'_sG">';
+  subjectOpts.forEach(function(o) {
+    selHtml += '<option value="'+o[0]+'"'+(sG===o[0]?' selected':'')+'>'+o[1]+'</option>';
+  });
+  selHtml += '</select>';
+
+  tr.innerHTML =
+    '<td><input class="di-inp" id="'+id+'_sN" placeholder="과목명" value="'+(sN||'')+'"><br>'+selHtml+'</td>'
+    +'<td><input class="di-inp di-gr" id="'+id+'_u" type="number" min="1" max="8" value="'+(u||4)+'" placeholder="단위"></td>'
+    +'<td><input class="di-inp di-gr" id="'+id+'_gr" type="number" min="1" max="9" placeholder="1~9" style="color:var(--red);font-size:16px;"></td>'
+    +'<td><input class="di-inp" id="'+id+'_t" type="number" min="1" placeholder="예:150" style="font-size:11px;"></td>'
+    +'<td><button class="di-del" onclick="removeDirectRow(\''+id+'\')">✕</button></td>';
+
+  tbody.appendChild(tr);
+}
+
+function removeDirectRow(id) {
+  var tr = document.getElementById(id);
+  if (tr) tr.remove();
+}
+
+function startDirectAnalysis() {
+  var g    = parseInt(document.getElementById('diGrade').value) || 1;
+  var sem  = document.getElementById('diSem').value + '학기';
+  var rows = document.getElementById('diRows').querySelectorAll('tr');
+  var newData = [];
+
+  rows.forEach(function(tr) {
+    var id  = tr.id;
+    var sN  = (document.getElementById(id+'_sN')  || {value:''}).value.trim();
+    var sG  = (document.getElementById(id+'_sG')  || {value:''}).value;
+    var u   = parseFloat((document.getElementById(id+'_u')  || {value:'4'}).value) || 4;
+    var gr  = (document.getElementById(id+'_gr')  || {value:''}).value.trim();
+    var t   = (document.getElementById(id+'_t')   || {value:''}).value.trim();
+    if (!sN || !gr) return;
+    var grInt = parseInt(gr);
+    if (isNaN(grInt) || grInt < 1 || grInt > 9) return;
+    newData.push({
+      g: g, sm: sem, sG: sG, sN: sN, u: u,
+      r: '-', m: '-', d: '-', gT: '-',
+      gr: String(grInt),
+      t: t ? parseInt(t) : '-',
+      sd: '-', p: '-',
+      _manual: true  // 수동 입력 표시
+    });
+  });
+
+  if (newData.length === 0) {
+    alert('과목명과 등급을 입력해 주세요.');
+    return;
+  }
+
+  // 기존 tD에서 같은 학년·학기 수동 데이터는 교체, 나머지는 유지
+  tD = tD.filter(function(d) {
+    return !(d._manual && d.g === g && d.sm === sem);
+  }).concat(newData);
+
+  simDelta = {}; globalDelta = 0;
+  showResult();
 }
 
 // ════════════════════════════════════════════
