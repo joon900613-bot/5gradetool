@@ -217,21 +217,33 @@ tbody tr:nth-child(even){background:#fafbfd;}
 
 /* 인쇄 */
 @media print{
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  .no-print,.left{display:none!important;}
-  .app{display:block;padding-top:0;height:auto;overflow:visible;}
-  .hd{position:relative;background:#1b5e20!important;}
-  .right{padding:0;overflow:visible;}
-  .tab-wrap{box-shadow:none;border:none;}
-  .tab-hd{display:none;}
-  .tab-body{padding:5px 0;}
-  .tab-p{display:block!important;}
-  .sum-bar{grid-template-columns:repeat(7,1fr);}
-  .chart-grid,.form-row{grid-template-columns:1fr 1fr;}
-  .sgoal-row{grid-template-columns:repeat(5,1fr);}
-  .ug{page-break-before:always;}
-  .sim-panel{display:none!important;}
-  @page{size:A4;margin:12mm;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;font-size:11px!important;}
+  .no-print,.left,.hd,.tab-hd,.sim-panel,.fbar,.landing-page{display:none!important;}
+  #landing{display:none!important;}
+  #analysisView{display:block!important;flex:none!important;overflow:visible!important;}
+  .app{display:block!important;padding-top:0!important;height:auto!important;overflow:visible!important;}
+  .right{padding:0!important;overflow:visible!important;display:block!important;}
+  /* 성적표 탭만 표시 */
+  .tab-p{display:none!important;}
+  #tab-성적표{display:block!important;}
+  .tab-wrap{box-shadow:none!important;border:none!important;}
+  .tab-body{padding:2px 0!important;}
+  /* 테이블 압축 */
+  table{font-size:10px!important;}
+  th,td{padding:5px 5px!important;font-size:10px!important;}
+  .sum-bar{grid-template-columns:repeat(7,1fr);gap:5px!important;padding:10px!important;}
+  .sb .vl{font-size:16px!important;}
+  .sb .lb{font-size:9px!important;}
+  .sb .sv{font-size:9px!important;}
+  .gr-badge{font-size:11px!important;height:20px!important;min-width:22px!important;}
+  /* 페이지 설정 */
+  @page{size:A4 portrait;margin:10mm 12mm;}
+  /* 인쇄 헤더 */
+  .print-hd{display:block!important;}
+  /* 결과영역 표시 */
+  #resultArea{display:flex!important;flex-direction:column!important;gap:8px!important;}
+  /* 차트/목표/전략/가이드 숨김 */
+  #tab-차트,#tab-전형분석,#tab-목표대학,#tab-지원전략,#tab-진학가이드{display:none!important;}
 }
 /* 수능 예상 등급 입력 */
 .suneung-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
@@ -302,19 +314,28 @@ tbody tr:nth-child(even){background:#fafbfd;}
 }
 
 /* 랜딩 페이지 */
-.landing-page{flex:1;overflow-y:auto;padding:28px 20px;background:var(--bg);display:flex;justify-content:center;align-items:flex-start;}
-.landing-card{background:#fff;border-radius:16px;border:1px solid var(--bd);box-shadow:0 4px 20px rgba(27,94,32,.1);padding:28px 30px;width:100%;max-width:840px;}
-.landing-hd{text-align:center;margin-bottom:22px;padding-bottom:18px;border-bottom:1.5px solid var(--bd);}
-.landing-hd-title{font-size:20px;font-weight:900;color:var(--navy);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
-.landing-hd-sub{font-size:13px;color:var(--sub);line-height:1.7;}
-.landing-body{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.landing-page{flex:1;overflow-y:auto;padding:24px 20px;background:var(--bg);display:flex;justify-content:center;align-items:flex-start;}
+.landing-card{background:#fff;border-radius:16px;border:1px solid var(--bd);box-shadow:0 4px 20px rgba(27,94,32,.1);padding:0;width:100%;max-width:900px;overflow:hidden;}
+.landing-hd{text-align:center;padding:22px 30px 18px;border-bottom:1.5px solid var(--bd);background:linear-gradient(135deg,#f1f8e9,#e8f5e9);}
+.landing-hd-title{font-size:20px;font-weight:900;color:var(--navy);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:5px;}
+.landing-hd-sub{font-size:12px;color:var(--sub);line-height:1.6;}
+/* 학생정보 풀폭 바 */
+.landing-stubar{padding:18px 28px;background:#fff;border-bottom:1.5px solid var(--bd);}
+.landing-stubar-title{font-size:10px;font-weight:700;color:var(--sub2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.landing-stubar-title::before{content:'';width:3px;height:11px;background:var(--blue);border-radius:2px;flex-shrink:0;}
+.landing-stubar-row{display:grid;grid-template-columns:2fr 1fr 0.7fr 0.7fr 0.7fr 1.5fr 1.2fr 1.5fr;gap:8px;align-items:end;}
+.landing-body{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:none;}
+.landing-col{padding:22px 28px;}
+.landing-col:first-child{border-right:1.5px solid var(--bd);}
 .landing-sec{margin-bottom:18px;}
 .landing-sec-title{font-size:10px;font-weight:700;color:var(--sub2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
 .landing-sec-title::before{content:'';width:3px;height:11px;background:var(--blue);border-radius:2px;flex-shrink:0;}
 @media(max-width:900px){
   .app{flex-direction:column;overflow:auto;height:auto;}
   .left{width:100%;min-width:0;}
+  .landing-stubar-row{grid-template-columns:1fr 1fr 1fr 1fr;}
   .landing-body{grid-template-columns:1fr;}
+  .landing-col:first-child{border-right:none;border-bottom:1.5px solid var(--bd);}
   .chart-grid,.form-row{grid-template-columns:1fr;}
   .sgoal-row{grid-template-columns:repeat(3,1fr);}
   .sum-bar{grid-template-columns:repeat(4,1fr);}
@@ -348,33 +369,34 @@ tbody tr:nth-child(even){background:#fafbfd;}
   <!-- ═══════ Phase 1: 랜딩 / 입력 페이지 ═══════ -->
   <div id="landing" class="landing-page">
     <div class="landing-card">
+
+      <!-- 상단 타이틀 -->
       <div class="landing-hd">
         <div class="landing-hd-title">📊 학생 성적 분석 상담 도구</div>
-        <div class="landing-hd-sub">학생 정보, 수능 예상 등급, 비교과 활동을 입력한 후<br>성적 파일을 업로드하거나 석차를 직접 입력하세요</div>
+        <div class="landing-hd-sub">학생 정보와 성적을 입력한 후 분석 시작을 누르세요</div>
       </div>
+
+      <!-- ── 학생 정보 풀폭 바 ── -->
+      <div class="landing-stubar">
+        <div class="landing-stubar-title">학생 정보</div>
+        <div class="landing-stubar-row">
+          <div class="ii"><label>학교명</label><input class="inp" id="sSch" placeholder="○○고등학교"></div>
+          <div class="ii"><label>담당교사</label><input class="inp" id="sTeacher" placeholder="성명"></div>
+          <div class="ii"><label>학년</label><input class="inp" id="sGrade" placeholder="2"></div>
+          <div class="ii"><label>반</label><input class="inp" id="sClass" placeholder="3"></div>
+          <div class="ii"><label>번호</label><input class="inp" id="sNum" placeholder="15"></div>
+          <div class="ii"><label>이름</label><input class="inp" id="sName" placeholder="학생 이름"></div>
+          <div class="ii"><label>상담일자</label><input class="inp" type="date" id="sDate"></div>
+          <div class="ii"><label>희망진로</label><input class="inp" id="sCareer" placeholder="의생명과학"></div>
+        </div>
+      </div>
+
+      <!-- ── 2컬럼: 수능 | 비교과+성적 ── -->
       <div class="landing-body">
 
-        <!-- ─── 좌측: 학생정보 + 수능 ─── -->
-        <div>
-          <div class="landing-sec">
-            <div class="landing-sec-title">학생 정보</div>
-            <div class="if-row">
-              <div class="ii" style="flex:2"><label>학교명</label><input class="inp" id="sSch" placeholder="○○고등학교"></div>
-              <div class="ii"><label>담당교사</label><input class="inp" id="sTeacher" placeholder="성명"></div>
-            </div>
-            <div class="if-row">
-              <div class="ii"><label>학년</label><input class="inp" id="sGrade" placeholder="1"></div>
-              <div class="ii"><label>반</label><input class="inp" id="sClass" placeholder="3"></div>
-              <div class="ii"><label>번호</label><input class="inp" id="sNum" placeholder="15"></div>
-              <div class="ii" style="flex:2"><label>이름</label><input class="inp" id="sName" placeholder="학생 이름"></div>
-            </div>
-            <div class="if-row">
-              <div class="ii"><label>상담일자</label><input class="inp" type="date" id="sDate"></div>
-              <div class="ii" style="flex:1.5"><label>희망진로</label><input class="inp" id="sCareer" placeholder="예: 의생명과학"></div>
-            </div>
-          </div>
-
-          <div class="landing-sec">
+        <!-- ─── 좌측: 수능 ─── -->
+        <div class="landing-col">
+          <div class="landing-sec" style="margin-bottom:0;">
             <div class="landing-sec-title">수능 예상 등급 <span style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--sub2);">(수능 최저 충족 분석)</span></div>
             <div class="suneung-grid">
               <div class="suneung-item"><label>국어</label><input class="inp" id="snKor" type="number" min="1" max="9" placeholder="1~9"></div>
@@ -384,11 +406,8 @@ tbody tr:nth-child(even){background:#fafbfd;}
               <div class="suneung-item"><label>탐구②</label><input class="inp" id="snT2" type="number" min="1" max="9" placeholder="1~9"></div>
             </div>
           </div>
-        </div>
 
-        <!-- ─── 우측: 비교과 + 성적입력 ─── -->
-        <div>
-          <div class="landing-sec">
+          <div class="landing-sec" style="margin-top:20px;margin-bottom:0;">
             <div class="landing-sec-title">비교과 활동 <span style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--sub2);">(종합전형 경쟁력 반영)</span></div>
             <div class="bk-row">
               <div class="bk-item"><label>📖 세부능력특기사항</label>
@@ -411,8 +430,11 @@ tbody tr:nth-child(even){background:#fafbfd;}
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="landing-sec">
+        <!-- ─── 우측: 성적입력 ─── -->
+        <div class="landing-col">
+          <div class="landing-sec" style="margin-bottom:0;">
             <div class="landing-sec-title">성적 입력</div>
             <input type="file" id="exF" accept=".xls,.xlsx,.csv" style="display:none">
             <div class="mode-tabs" style="padding:0 0 10px 0;">
