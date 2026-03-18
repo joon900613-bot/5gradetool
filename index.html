@@ -233,12 +233,61 @@ tbody tr:nth-child(even){background:#fafbfd;}
   .sim-panel{display:none!important;}
   @page{size:A4;margin:12mm;}
 }
+/* 수능 예상 등급 입력 */
+.suneung-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.suneung-item{display:flex;flex-direction:column;gap:3px;}
+.suneung-item label{font-size:9px;color:var(--sub2);font-weight:700;text-align:center;display:block;letter-spacing:.3px;}
+.suneung-item input{text-align:center;width:100%;padding:6px 2px;}
+
+/* 비교과 활동 */
+.bk-row{display:flex;flex-direction:column;gap:7px;}
+.bk-item{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.bk-item label{font-size:11px;color:#475569;font-weight:600;white-space:nowrap;}
+.bk-item select,.bk-item input{width:95px;padding:5px 6px;}
+
+/* 지원전략 탭 */
+.strat-section{margin-bottom:20px;}
+.strat-title{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.7px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.strat-title::before{content:'';width:3px;height:13px;background:var(--blue);border-radius:2px;flex-shrink:0;}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.slot-card{border-radius:10px;padding:14px;border:1.5px solid;text-align:center;}
+.slot-card.safe{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#86efac;}
+.slot-card.aim{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;}
+.slot-card.high{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;}
+.slot-card .st{font-size:10px;font-weight:700;color:var(--sub);margin-bottom:6px;}
+.slot-card .sv{font-size:13px;font-weight:800;color:var(--navy);line-height:1.4;}
+.slot-card .sd{font-size:10px;color:var(--sub);margin-top:5px;line-height:1.5;}
+.sixcard{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px;}
+.sc{border-radius:8px;padding:10px 4px;text-align:center;border:1.5px solid;}
+.sc.kyo{background:#eff6ff;border-color:#93c5fd;}
+.sc.jong{background:#f5f3ff;border-color:#c4b5fd;}
+.sc.nol{background:#fff7ed;border-color:#fdba74;}
+.sc.etc{background:#f8fafc;border-color:#cbd5e1;}
+.sc .sct{font-size:9px;font-weight:700;color:var(--sub);margin-bottom:4px;}
+.sc .scv{font-size:12px;font-weight:800;color:var(--navy);}
+
+/* 인쇄 헤더 (화면에서는 숨김) */
+.print-hd{display:none;}
+@media print{
+  .print-hd{display:block!important;border:2px solid #1a237e;padding:12px 16px;margin-bottom:14px;page-break-after:avoid;}
+  .print-hd-title{font-size:15px;font-weight:900;color:#1a237e;text-align:center;padding-bottom:8px;margin-bottom:8px;border-bottom:2px solid #1a237e;}
+  .print-hd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 20px;margin-bottom:10px;}
+  .print-hd-item{display:flex;flex-direction:column;gap:2px;}
+  .print-hd-label{font-size:10px;color:#64748b;font-weight:700;}
+  .print-hd-value{font-weight:700;color:#1e293b;border-bottom:1px solid #94a3b8;padding-bottom:3px;min-height:17px;font-size:12px;}
+  .print-sig{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:10px;padding-top:10px;border-top:1px dashed #94a3b8;}
+  .print-sig-box{text-align:center;font-size:10px;color:#475569;}
+  .print-sig-line{border-bottom:1px solid #333;height:22px;margin-bottom:4px;}
+}
+
 @media(max-width:900px){
   .app{flex-direction:column;overflow:auto;height:auto;}
   .left{width:100%;min-width:0;}
   .chart-grid,.form-row{grid-template-columns:1fr;}
   .sgoal-row{grid-template-columns:repeat(3,1fr);}
   .sum-bar{grid-template-columns:repeat(4,1fr);}
+  .slot-grid{grid-template-columns:1fr;}
+  .sixcard{grid-template-columns:repeat(3,1fr);}
 }
 </style>
 </head>
@@ -304,6 +353,50 @@ tbody tr:nth-child(even){background:#fafbfd;}
         <div style="margin-bottom:8px;"><label style="font-size:11px;color:var(--sub2);font-weight:700;display:block;margin-bottom:4px;">📝 상담 내용</label><textarea class="inp" id="memo1" rows="4" placeholder="상담 내용, 특이사항..."></textarea></div>
         <div><label style="font-size:11px;color:var(--sub2);font-weight:700;display:block;margin-bottom:4px;">🎯 진학 지도 방향</label><textarea class="inp" id="memo2" rows="4" placeholder="목표 대학, 지도 방향..."></textarea></div>
       </div>
+
+      <!-- 수능 예상 등급 입력 -->
+      <div class="lsec no-print">
+        <div class="lsec-title">수능 예상 등급 <span style="font-size:9px;font-weight:400;color:var(--sub2);">(수능 최저 충족 분석)</span></div>
+        <div class="suneung-grid">
+          <div class="suneung-item"><label>국어</label><input class="inp" id="snKor" type="number" min="1" max="9" placeholder="1~9"></div>
+          <div class="suneung-item"><label>수학</label><input class="inp" id="snMath" type="number" min="1" max="9" placeholder="1~9"></div>
+          <div class="suneung-item"><label>영어</label><input class="inp" id="snEng" type="number" min="1" max="9" placeholder="1~9"></div>
+          <div class="suneung-item"><label>탐구①</label><input class="inp" id="snT1" type="number" min="1" max="9" placeholder="1~9"></div>
+          <div class="suneung-item"><label>탐구②</label><input class="inp" id="snT2" type="number" min="1" max="9" placeholder="1~9"></div>
+        </div>
+      </div>
+
+      <!-- 비교과 활동 입력 -->
+      <div class="lsec no-print">
+        <div class="lsec-title">비교과 활동 <span style="font-size:9px;font-weight:400;color:var(--sub2);">(종합전형 경쟁력 반영)</span></div>
+        <div class="bk-row">
+          <div class="bk-item"><label>📖 세부능력특기사항</label>
+            <select class="inp" id="bkSeTeuk" style="width:auto;">
+              <option value="3">매우 우수</option>
+              <option value="2" selected>우수</option>
+              <option value="1">보통</option>
+              <option value="0">미흡</option>
+            </select>
+          </div>
+          <div class="bk-item"><label>🎭 동아리 활동</label>
+            <select class="inp" id="bkDongari" style="width:auto;">
+              <option value="3">우수 (전공연계)</option>
+              <option value="2" selected>보통</option>
+              <option value="1">미흡</option>
+            </select>
+          </div>
+          <div class="bk-item"><label>🤝 봉사활동 시간</label>
+            <input class="inp" id="bkBongsa" type="number" min="0" placeholder="예: 50" style="width:90px;text-align:center;">
+          </div>
+          <div class="bk-item"><label>🏆 수상 실적</label>
+            <select class="inp" id="bkSusang" style="width:auto;">
+              <option value="2">우수 (3개 이상)</option>
+              <option value="1" selected>보통 (1~2개)</option>
+              <option value="0">없음</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="leftUpload">
@@ -318,6 +411,23 @@ tbody tr:nth-child(even){background:#fafbfd;}
 
   <!-- 오른쪽 패널 -->
   <div class="right">
+    <!-- 인쇄 전용 헤더 (화면에서 숨김) -->
+    <div id="printHd" class="print-hd">
+      <div class="print-hd-title">📊 진학 상담 결과 보고서</div>
+      <div class="print-hd-grid">
+        <div class="print-hd-item"><div class="print-hd-label">학교명</div><div class="print-hd-value" id="phSchool"></div></div>
+        <div class="print-hd-item"><div class="print-hd-label">학생</div><div class="print-hd-value" id="phStudent"></div></div>
+        <div class="print-hd-item"><div class="print-hd-label">상담일</div><div class="print-hd-value" id="phDate"></div></div>
+        <div class="print-hd-item"><div class="print-hd-label">담당교사</div><div class="print-hd-value" id="phTeacher"></div></div>
+        <div class="print-hd-item"><div class="print-hd-label">희망진로</div><div class="print-hd-value" id="phCareer"></div></div>
+        <div class="print-hd-item"><div class="print-hd-label">국영수사과 등급</div><div class="print-hd-value" id="phGrade"></div></div>
+      </div>
+      <div class="print-sig">
+        <div class="print-sig-box"><div class="print-sig-line"></div>학생 확인</div>
+        <div class="print-sig-box"><div class="print-sig-line"></div>담당교사 서명</div>
+        <div class="print-sig-box"><div class="print-sig-line"></div>학부모 확인</div>
+      </div>
+    </div>
     <div id="rightEmpty" style="flex:1;display:flex;align-items:center;justify-content:center;min-height:400px;">
       <div style="text-align:center;padding:40px;background:#fff;border-radius:16px;border:2px dashed #cbd5e1;max-width:480px;box-shadow:0 4px 24px rgba(0,0,0,.06);">
         <div style="font-size:48px;margin-bottom:14px;">📊</div>
@@ -337,6 +447,7 @@ tbody tr:nth-child(even){background:#fafbfd;}
               <div class="tab" onclick="switchTab(this,'차트')">📈 차트</div>
               <div class="tab" onclick="switchTab(this,'전형분석')">🎯 전형 분석</div>
               <div class="tab" onclick="switchTab(this,'목표대학')">🏫 목표 대학</div>
+              <div class="tab" onclick="switchTab(this,'지원전략')">🗺️ 지원 전략</div>
               <div class="tab" onclick="switchTab(this,'진학가이드')">🎓 진학 가이드</div>
             </div>
           </div>
@@ -419,6 +530,9 @@ tbody tr:nth-child(even){background:#fafbfd;}
             </div>
             <div id="goalContent"></div>
           </div>
+
+          <!-- 지원전략 -->
+          <div class="tab-p" id="tab-지원전략"></div>
 
           <!-- 진학가이드 -->
           <div class="tab-p" id="tab-진학가이드">
@@ -634,6 +748,7 @@ function refreshAll() {
   if (tab) {
     if (tab.id === 'tab-전형분석') renderForm();
     if (tab.id === 'tab-목표대학') renderGoal();
+    if (tab.id === 'tab-지원전략') renderStrategy();
     if (tab.id === 'tab-진학가이드') renderGuide();
     if (tab.id === 'tab-차트') renderCharts();
   }
@@ -646,8 +761,12 @@ function refreshAll() {
 function resetAll() {
   if (!confirm('모든 데이터를 초기화하시겠습니까?')) return;
   tD = []; simDelta = {}; globalDelta = 0;
-  ['sSch','sTeacher','sGrade','sClass','sNum','sName','sCareer','memo1','memo2'].forEach(function(id){
+  ['sSch','sTeacher','sGrade','sClass','sNum','sName','sCareer','memo1','memo2',
+   'snKor','snMath','snEng','snT1','snT2','bkBongsa'].forEach(function(id){
     var el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['bkSeTeuk','bkDongari','bkSusang'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.selectedIndex = 1;
   });
   document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('exF').value = '';
@@ -670,6 +789,7 @@ function showResult() {
 
 function renderAll() {
   updateInfo();
+  updatePrintHeader();
   renderSummary();
   renderTable();
   renderAW();
@@ -679,6 +799,7 @@ function renderAll() {
     if (tab.id === 'tab-차트') renderCharts();
     if (tab.id === 'tab-전형분석') renderForm();
     if (tab.id === 'tab-목표대학') renderGoal();
+    if (tab.id === 'tab-지원전략') renderStrategy();
     if (tab.id === 'tab-진학가이드') renderGuide();
   }
 }
@@ -691,6 +812,7 @@ function switchTab(el, name) {
   if (name === '차트') renderCharts();
   if (name === '전형분석') renderForm();
   if (name === '목표대학') renderGoal();
+  if (name === '지원전략') renderStrategy();
   if (name === '진학가이드') renderGuide();
 }
 
@@ -716,6 +838,7 @@ function updateInfo() {
   document.getElementById('sbTags').innerHTML = tags.map(function(x){ return '<div class="stu-tag">'+x+'</div>'; }).join('');
   var pi = document.getElementById('printInfo');
   if (pi) pi.textContent = sch+' '+g+'학년 '+cl+'반 '+n+'번 '+name+' | 상담일: '+d+' | 담당: '+t;
+  updatePrintHeader();
 }
 
 // ════════════════════════════════════════════
@@ -1079,24 +1202,66 @@ function renderForm() {
   }
   var semRows=getSems().map(function(s){ var r=cA(s,['국어','영어','수학','사회','과학']); return s+' <b>'+r.g+'</b>'; }).join(' → ');
   var kyoS=Math.max(0,100-((g9-1)/8)*100);
+  var bkScore=getBigyogwa();
   var jongS=Math.max(0,100-((g5-1)/4)*100);
   if (trend!==null){if(trend<-0.3)jongS+=8;else if(trend>0.3)jongS-=5;}
+  jongS=Math.min(100,jongS*0.7+bkScore*0.3); // 비교과 30% 반영
   var kyoCls=kyoS>=jongS?'best':'mid', jongCls=jongS>kyoS?'best':'mid';
   var adv=g5<=1.5?'비교과(세특·동아리·독서)를 적극 관리하면 종합전형 경쟁력이 높아집니다.':
           g5<=2.5?'교과·종합전형 모두 준비하되, 성적 안정화를 우선 목표로 하세요.':
           '성적 향상이 최우선입니다. 수능 준비도 함께 고려하세요.';
-  el.innerHTML='<div style="background:#f8faff;border:1px solid #d0dff7;border-radius:8px;padding:14px;margin-bottom:14px;">'
+  var bkLabel=bkScore>=80?'우수 ✅':bkScore>=55?'보통 🟡':'보완 필요 🔴';
+  var bkColor=bkScore>=80?'#15803d':bkScore>=55?'#d97706':'#b91c1c';
+
+  var fHtml='<div style="background:#f8faff;border:1px solid #d0dff7;border-radius:8px;padding:14px;margin-bottom:14px;">'
     +'<div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--navy);">📈 성적 추이</div>'
     +'<div style="font-size:13px;margin-bottom:6px;">'+(trendMsg||'학기 데이터 부족')+'</div>'
     +'<div style="font-size:12px;color:var(--sub);">'+semRows+'</div></div>'
     +'<div class="form-row">'
     +'<div class="fc '+kyoCls+'"><div class="fn">📚 교과 전형</div><div class="fg">'+g9+'</div><div class="fd">9등급 환산 기준<br>교과 성적 중심 반영</div><div class="fb fb-'+kyoCls+'">'+(kyoCls==='best'?'✅ 상대적 유리':'⚠️ 보통')+'</div></div>'
-    +'<div class="fc '+jongCls+'"><div class="fn">🎓 종합 전형</div><div class="fg">'+g5+'</div><div class="fd">5등급 환산 기준<br>비교과 활동 중요</div><div class="fb fb-'+jongCls+'">'+(jongCls==='best'?'✅ 상대적 유리':'⚠️ 보통')+'</div></div>'
+    +'<div class="fc '+jongCls+'"><div class="fn">🎓 종합 전형</div><div class="fg">'+g5+'</div><div class="fd">5등급 기준 · 비교과 <b style="color:'+bkColor+'">'+bkLabel+'</b><br>비교과 30% 반영 점수: '+Math.round(jongS)+'점</div><div class="fb fb-'+jongCls+'">'+(jongCls==='best'?'✅ 상대적 유리':'⚠️ 보통')+'</div></div>'
     +'<div class="fc mid"><div class="fn">📝 수능 정시</div><div class="fg">-</div><div class="fd">수능 성적 별도 필요<br>내신과 별개로 준비</div><div class="fb fb-mid">ℹ️ 병행 준비</div></div>'
     +'</div>'
     +'<div style="margin-top:14px;padding:14px;background:#fff8e1;border-radius:8px;border:1px solid #ffe082;font-size:13px;line-height:1.9;">'
     +'<b>💡 종합 의견</b><br>국영수사과 5등급 <b style="color:var(--red)">'+g5+'</b> / 9등급 <b style="color:var(--red)">'+g9+'</b> 기준으로 '
     +'<b>'+(kyoCls==='best'?'교과전형':'종합전형')+'</b>이 상대적으로 유리합니다.<br>'+adv+'</div>';
+
+  // 수능 최저 분석 섹션
+  var snResult = checkSuneungMin();
+  if (snResult) {
+    fHtml += '<div style="margin-top:14px;padding:14px;background:#f0f7ff;border-radius:8px;border:1px solid #bfdbfe;">'
+      +'<div style="font-weight:700;font-size:13px;color:var(--navy);margin-bottom:10px;">📝 수능 최저 충족 예측'
+      +'<span style="font-size:11px;font-weight:400;color:var(--sub);margin-left:8px;">최우수 2개합: '+snResult.best2+(snResult.best3<999?' / 3개합: '+snResult.best3:'')+'</span></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+    snResult.snData.forEach(function(r){
+      fHtml += '<div style="border-radius:7px;padding:8px;border:1.5px solid;text-align:center;'
+        +(r.met?'background:#f0fdf4;border-color:#86efac;':'background:#fff1f2;border-color:#fca5a5;')
+        +'"><div style="font-size:10px;font-weight:700;color:var(--sub);">'+r.n+'</div>'
+        +'<div style="font-size:10px;color:var(--sub2);">'+r.req+'</div>'
+        +'<div style="font-size:14px;font-weight:900;margin-top:4px;color:'+(r.met?'#15803d':'#b91c1c')+'">'+(r.met?'✅ 충족':'❌ 미충족')+'</div>'
+        +'</div>';
+    });
+    fHtml += '</div></div>';
+  }
+
+  // 희망진로 과목 이수 확인
+  var subjCheck = checkRequiredSubjects();
+  if (subjCheck) {
+    fHtml += '<div style="margin-top:14px;padding:14px;background:#fff7ed;border-radius:8px;border:1px solid #fed7aa;">'
+      +'<div style="font-weight:700;font-size:13px;color:var(--navy);margin-bottom:8px;">📚 희망진로 필수 과목 이수 현황 — <span style="color:var(--red);">'+subjCheck.career+'</span></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    subjCheck.list.forEach(function(s){
+      fHtml += '<div style="border-radius:7px;padding:7px 12px;border:1.5px solid;font-size:12px;font-weight:700;'
+        +(s.met?'background:#f0fdf4;border-color:#86efac;color:#15803d;':'background:#fff1f2;border-color:#fca5a5;color:#b91c1c;')
+        +'">'+s.n+' '+(s.met?'✅':'❌')+'</div>';
+    });
+    fHtml += '</div>';
+    if (subjCheck.list.some(function(s){ return !s.met; }))
+      fHtml += '<div style="font-size:11px;color:#b45309;margin-top:8px;">⚠️ 미이수 과목은 일부 대학에서 지원 자격 제한이 있을 수 있습니다.</div>';
+    fHtml += '</div>';
+  }
+
+  el.innerHTML = fHtml;
 }
 
 // ════════════════════════════════════════════
@@ -1211,6 +1376,216 @@ function uniChart(title,data,uG){
       +'<div style="position:absolute;bottom:100%;left:'+(L+W/2)+'%;margin-bottom:5px;font-size:9.5px;font-weight:700;color:#333;transform:rotate(-55deg);transform-origin:bottom left;white-space:nowrap;">'+d[3]+'</div>';
   });
   return h+'</div></div>';
+}
+
+// ════════════════════════════════════════════
+// 수능 / 비교과 / 이수확인 헬퍼
+// ════════════════════════════════════════════
+function getSuneung() {
+  return {
+    kor:  parseInt(document.getElementById('snKor').value)  || 0,
+    math: parseInt(document.getElementById('snMath').value) || 0,
+    eng:  parseInt(document.getElementById('snEng').value)  || 0,
+    t1:   parseInt(document.getElementById('snT1').value)   || 0,
+    t2:   parseInt(document.getElementById('snT2').value)   || 0
+  };
+}
+
+function getBigyogwa() {
+  var seTeuk  = parseInt((document.getElementById('bkSeTeuk')  || {value:'2'}).value);
+  var dongari = parseInt((document.getElementById('bkDongari') || {value:'2'}).value);
+  var bongsa  = parseInt((document.getElementById('bkBongsa')  || {value:'0'}).value) || 0;
+  var susang  = parseInt((document.getElementById('bkSusang')  || {value:'1'}).value);
+  var seTeukS  = [5, 14, 20, 25][seTeuk]  || 14;
+  var dongariS = [5, 13, 18, 22][dongari] || 13;
+  var bongsaS  = bongsa >= 60 ? 20 : bongsa >= 30 ? 14 : bongsa >= 10 ? 8 : 3;
+  var susangS  = [4, 12, 18][susang] || 4;
+  return Math.min(100, seTeukS + dongariS + bongsaS + susangS + 10);
+}
+
+function checkSuneungMin() {
+  var sn = getSuneung();
+  var grades = [sn.kor, sn.math, sn.eng, sn.t1, sn.t2].filter(function(g){ return g > 0; });
+  if (grades.length < 2) return null;
+  grades.sort(function(a,b){ return a-b; });
+  var best2 = grades[0] + grades[1];
+  var best3 = grades.length >= 3 ? grades[0]+grades[1]+grades[2] : 999;
+  var eng = sn.eng || 0;
+  var snData = [
+    {n:'메디컬·최상위', req:'3개합 4 이내', met: best3 <= 4},
+    {n:'서울 상위권',   req:'2개합 5 이내', met: best2 <= 5},
+    {n:'서울 중상위권', req:'2개합 6 이내', met: best2 <= 6},
+    {n:'서울 중위권',   req:'2개합 7 이내', met: best2 <= 7},
+    {n:'수도권 주요',   req:'2개합 9 이내', met: best2 <= 9},
+    {n:'거점 국립대',   req:'영어 2등급',   met: eng > 0 && eng <= 2}
+  ];
+  return {snData: snData, best2: best2, best3: best3};
+}
+
+function checkRequiredSubjects() {
+  var career = (document.getElementById('sCareer') || {value:''}).value || '';
+  if (!career || !tD.length) return null;
+  var names = tD.map(function(d){ return d.sN || ''; });
+  var has = function(re){ return names.some(function(s){ return re.test(s); }); };
+  var list = [];
+  if (/의|약학|치|한의|수의|간호|보건/.test(career)) {
+    list = [
+      {n:'화학Ⅰ/화학', met: has(/화학/)},
+      {n:'생명과학Ⅰ/생명과학', met: has(/생명/)},
+      {n:'수학(미적분)', met: has(/미적분|수학Ⅱ/)}
+    ];
+  } else if (/공학|공대|기계|전기|전자|컴퓨터|소프트웨어|IT|화공|반도체/.test(career)) {
+    list = [
+      {n:'수학(미적분/기하)', met: has(/미적분|기하/)},
+      {n:'물리학Ⅰ/물리', met: has(/물리/)},
+      {n:'화학Ⅰ/화학', met: has(/화학/)}
+    ];
+  } else if (/경제|경영|상경|회계|금융|무역/.test(career)) {
+    list = [
+      {n:'수학(확률과 통계)', met: has(/확률|통계/)},
+      {n:'경제', met: has(/경제/)}
+    ];
+  } else if (/교육|사범|교원/.test(career)) {
+    list = [
+      {n:'교육학 관련 과목', met: has(/교육/)}
+    ];
+  } else if (/법|정치|행정|외교|국제/.test(career)) {
+    list = [
+      {n:'정치와 법', met: has(/정치|법/)},
+      {n:'생활과 윤리', met: has(/윤리/)}
+    ];
+  }
+  return list.length ? {career: career, list: list} : null;
+}
+
+// ════════════════════════════════════════════
+// 인쇄 헤더 업데이트
+// ════════════════════════════════════════════
+function updatePrintHeader() {
+  var ph = document.getElementById('printHd');
+  if (!ph) return;
+  var get = function(id){ var el=document.getElementById(id); return el?el.value:'-'; };
+  var core = cA('all', ['국어','영어','수학','사회','과학']);
+  var set = function(id, val){ var el=document.getElementById(id); if(el) el.textContent=val; };
+  set('phSchool',  get('sSch') || '-');
+  set('phStudent', get('sGrade')+'학년 '+get('sClass')+'반 '+get('sNum')+'번 '+get('sName'));
+  set('phDate',    get('sDate') || '-');
+  set('phTeacher', get('sTeacher') || '-');
+  set('phCareer',  get('sCareer') || '-');
+  set('phGrade',   core.g!=='-' ? '5등급: '+core.g+' / 9등급: '+core.g9 : '-');
+}
+
+// ════════════════════════════════════════════
+// 지원전략 렌더
+// ════════════════════════════════════════════
+function renderStrategy() {
+  var core = cA('all', ['국어','영어','수학','사회','과학']);
+  var g5 = parseFloat(core.g);
+  var el = document.getElementById('tab-지원전략');
+  if (!el) return;
+  if (isNaN(g5)) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--sub);">성적 데이터를 먼저 업로드해주세요.</div>';
+    return;
+  }
+
+  function groupName(offset) {
+    var t = g5 + offset;
+    if (t <= 1.0)  return '메디컬·최상위';
+    if (t <= 1.15) return '서울 상위권 (SKY)';
+    if (t <= 1.3)  return '서울 중상위권 (성균관·한양·이화)';
+    if (t <= 1.4)  return '서울 중위권 (중앙·경희·외대)';
+    if (t <= 2.0)  return '서울·수도권 주요';
+    if (t <= 2.1)  return '거점 국립대학';
+    if (t <= 3.3)  return '수도권 중하위권';
+    return '지방 주요 대학';
+  }
+
+  var bk = getBigyogwa();
+  var bkLabel = bk >= 80 ? '우수 ✅' : bk >= 55 ? '보통 🟡' : '보완 필요 🔴';
+  var bkColor = bk >= 80 ? '#15803d' : bk >= 55 ? '#d97706' : '#b91c1c';
+  var bkMsg = bk >= 80
+    ? '비교과가 우수하여 종합전형에서 강점이 있습니다.'
+    : bk >= 55
+    ? '비교과 보완 시 종합전형 경쟁력이 향상됩니다. 세특 관리를 강화하세요.'
+    : '비교과 활동 강화가 필요합니다. 세부능력특기사항 및 동아리 활동에 집중하세요.';
+
+  var kyoCnt=2, jongCnt=2, nolCnt=1, etcCnt=1;
+  if (g5 <= 1.5)      { kyoCnt=3; jongCnt=2; nolCnt=1; etcCnt=0; }
+  else if (g5 <= 2.5) { kyoCnt=2; jongCnt=2; nolCnt=1; etcCnt=1; }
+  else if (g5 <= 3.5) { kyoCnt=2; jongCnt=1; nolCnt=2; etcCnt=1; }
+  else                { kyoCnt=1; jongCnt=1; nolCnt=2; etcCnt=2; }
+
+  var html = '';
+
+  // 안전/소신/상향
+  html += '<div class="strat-section">'
+    + '<div class="strat-title">📋 안전 · 소신 · 상향 추천 대학군</div>'
+    + '<div class="slot-grid">'
+    + '<div class="slot-card safe"><div class="st">🛡️ 안전 지원 (1~2장)</div><div class="sv">'+groupName(+0.5)+'</div><div class="sd">현재 성적 대비 확실한 합격권</div></div>'
+    + '<div class="slot-card aim"><div class="st">🎯 소신 지원 (2~3장)</div><div class="sv">'+groupName(0)+'</div><div class="sd">현재 성적 적정 목표 대학군</div></div>'
+    + '<div class="slot-card high"><div class="st">🚀 상향 지원 (1장)</div><div class="sv">'+groupName(-0.5)+'</div><div class="sd">도전적 목표 (합격 가능성 낮음)</div></div>'
+    + '</div></div>';
+
+  // 6장 배분
+  html += '<div class="strat-section"><div class="strat-title">📌 수시 6장 배분 전략</div>';
+  html += '<div class="sixcard">';
+  for (var i=0;i<kyoCnt;i++)  html += '<div class="sc kyo"><div class="sct">교과전형</div><div class="scv">교과</div></div>';
+  for (var i=0;i<jongCnt;i++) html += '<div class="sc jong"><div class="sct">종합전형</div><div class="scv">종합</div></div>';
+  for (var i=0;i<nolCnt;i++)  html += '<div class="sc nol"><div class="sct">논술전형</div><div class="scv">논술</div></div>';
+  for (var i=0;i<etcCnt;i++)  html += '<div class="sc etc"><div class="sct">조정</div><div class="scv" style="color:var(--sub)">-</div></div>';
+  html += '</div>';
+  html += '<div style="font-size:11px;color:var(--sub);margin-top:8px;">※ 5등급 <b>'+g5+'</b>등급, 비교과 <b>'+bkLabel+'</b> 기반 추천입니다. 실제 지원 시 모집요강 반드시 확인.</div>';
+  html += '</div>';
+
+  // 비교과 진단
+  html += '<div class="strat-section"><div class="strat-title">📊 비교과 종합 진단</div>'
+    + '<div style="background:#f8fafc;border:1px solid var(--bd);border-radius:10px;padding:14px;">'
+    + '<div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;">'
+    + '<div style="font-size:38px;font-weight:900;color:'+bkColor+';">'+bk+'<span style="font-size:13px;font-weight:700;">/100</span></div>'
+    + '<div><div style="font-size:14px;font-weight:700;color:var(--navy);">비교과 종합 점수</div><div style="font-size:12px;color:'+bkColor+';font-weight:700;">'+bkLabel+'</div></div>'
+    + '</div>'
+    + '<div style="font-size:12px;color:#475569;line-height:1.9;">'+bkMsg+'</div>'
+    + '</div></div>';
+
+  // 수능 최저
+  var sn = checkSuneungMin();
+  if (sn) {
+    html += '<div class="strat-section"><div class="strat-title">📝 수능 최저 충족 예측</div>'
+      + '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--sub);font-weight:700;">'
+      + '<span>최우수 2개 등급합: <b style="color:var(--navy);font-size:14px;">'+sn.best2+'</b></span>'
+      + (sn.best3<999?'<span>3개 등급합: <b style="color:var(--navy);font-size:14px;">'+sn.best3+'</b></span>':'')
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+    sn.snData.forEach(function(r){
+      html += '<div style="border-radius:8px;padding:10px;border:1.5px solid;text-align:center;'
+        + (r.met?'background:#f0fdf4;border-color:#86efac;':'background:#fff1f2;border-color:#fca5a5;')
+        + '"><div style="font-size:10px;font-weight:700;color:var(--sub);margin-bottom:2px;">'+r.n+'</div>'
+        + '<div style="font-size:10px;color:var(--sub2);">'+r.req+'</div>'
+        + '<div style="font-size:15px;font-weight:900;margin-top:5px;color:'+(r.met?'#15803d':'#b91c1c')+'">'+(r.met?'✅ 충족':'❌ 미충족')+'</div>'
+        + '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // 희망진로 과목 이수 확인
+  var subjCheck = checkRequiredSubjects();
+  if (subjCheck) {
+    html += '<div class="strat-section"><div class="strat-title">📚 희망진로 필수 과목 이수 현황</div>'
+      + '<div style="font-size:12px;color:var(--sub);margin-bottom:10px;">희망진로: <b style="color:var(--navy);">'+subjCheck.career+'</b></div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    subjCheck.list.forEach(function(s){
+      html += '<div style="border-radius:8px;padding:8px 14px;border:1.5px solid;font-size:12px;font-weight:700;'
+        + (s.met?'background:#f0fdf4;border-color:#86efac;color:#15803d;':'background:#fff1f2;border-color:#fca5a5;color:#b91c1c;')
+        + '">'+s.n+' '+(s.met?'✅':'❌ 미이수')+'</div>';
+    });
+    html += '</div>';
+    if (subjCheck.list.some(function(s){ return !s.met; })) {
+      html += '<div style="font-size:11px;color:#d97706;margin-top:8px;padding:8px;background:#fffbeb;border-radius:6px;border:1px solid #fde68a;">⚠️ 미이수 과목은 대학에 따라 지원 자격 제한이 있을 수 있습니다. 해당 대학 모집요강을 반드시 확인하세요.</div>';
+    }
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
 }
 
 // ════════════════════════════════════════════
