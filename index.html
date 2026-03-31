@@ -299,6 +299,16 @@ tbody tr:nth-child(even){background:#fafbfd;}
 .di-start-btn:hover{filter:brightness(1.1);}
 .di-notice{font-size:10px;color:var(--sub2);line-height:1.6;padding:8px;background:#fffbeb;border-radius:6px;border:1px solid #fde68a;margin-bottom:10px;}
 
+/* 과목 팔레트 */
+.palette-section{margin-bottom:12px;}
+.palette-hint{font-size:11px;color:var(--sub);margin-bottom:8px;padding:6px 8px;background:#f0fdf4;border-radius:6px;border:1px solid #bbf7d0;}
+.palette-group{margin-bottom:10px;}
+.palette-group-label{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;}
+.palette-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.palette-chip{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .15s;user-select:none;line-height:1.4;}
+.palette-chip:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.12);}
+.palette-chip.sel{color:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+
 /* 인쇄 헤더 (화면에서는 숨김) */
 .print-hd{display:none;}
 @media print{
@@ -454,13 +464,13 @@ tbody tr:nth-child(even){background:#fafbfd;}
 
             <div id="directZone" style="display:none;">
               <div class="di-notice">
-                ✏️ 성적이 없는 1학년 또는 예상 성적 기반 상담에 활용하세요.<br>
-                <b>석차</b>와 <b>재적수</b>를 입력하면 등급이 자동 계산됩니다.
+                ✏️ 수강한 과목 칩을 클릭해 선택하면 자동으로 입력됩니다.<br>
+                과목 선택 후 <b>석차</b>와 <b>재적수</b>를 입력하면 등급이 자동 계산됩니다.
               </div>
               <div class="if-row" style="margin-bottom:10px;">
                 <div class="ii">
                   <label>학년</label>
-                  <select class="inp" id="diGrade">
+                  <select class="inp" id="diGrade" onchange="renderSubjectPalette()">
                     <option value="1">1학년</option>
                     <option value="2">2학년</option>
                     <option value="3">3학년</option>
@@ -468,13 +478,16 @@ tbody tr:nth-child(even){background:#fafbfd;}
                 </div>
                 <div class="ii">
                   <label>학기</label>
-                  <select class="inp" id="diSem">
+                  <select class="inp" id="diSem" onchange="renderSubjectPalette()">
                     <option value="1">1학기</option>
                     <option value="2">2학기</option>
                   </select>
                 </div>
               </div>
-              <table class="di-table">
+              <!-- 과목 팔레트 -->
+              <div id="diPalette" class="palette-section"></div>
+              <!-- 선택된 과목 테이블 -->
+              <table class="di-table" id="diTableWrap" style="display:none;">
                 <thead>
                   <tr>
                     <th style="text-align:left;padding-left:6px;">교과·과목</th>
@@ -487,7 +500,7 @@ tbody tr:nth-child(even){background:#fafbfd;}
                 </thead>
                 <tbody id="diRows"></tbody>
               </table>
-              <button class="di-add-btn" onclick="addDirectRow()">+ 과목 추가</button>
+              <button class="di-add-btn" onclick="addDirectRow()" style="margin-top:6px;">+ 직접 추가 (팔레트 외 과목)</button>
               <button class="di-start-btn" onclick="startDirectAnalysis()">📊 분석 시작</button>
             </div>
           </div>
@@ -899,6 +912,11 @@ function resetAll() {
   document.getElementById('exF').value = '';
   var diRows = document.getElementById('diRows');
   if (diRows) diRows.innerHTML = '';
+  paletteRowMap = {};
+  var pal = document.getElementById('diPalette');
+  if (pal) pal.innerHTML = '';
+  var tw = document.getElementById('diTableWrap');
+  if (tw) tw.style.display = 'none';
   // Return to landing
   document.getElementById('analysisView').style.display = 'none';
   document.getElementById('landing').style.display = 'flex';
@@ -1516,15 +1534,112 @@ function uniChart(title,data,uG){
 }
 
 // ════════════════════════════════════════════
-// 직접 입력 모드
+// 직접 입력 모드 (팔레트 방식)
 // ════════════════════════════════════════════
-var DI_DEFAULTS = [
-  {sG:'국어', sN:'공통국어', u:4},
-  {sG:'수학', sN:'공통수학Ⅰ', u:4},
-  {sG:'영어', sN:'공통영어Ⅰ', u:4},
-  {sG:'사회(역사/도덕포함)', sN:'통합사회Ⅰ', u:3},
-  {sG:'과학', sN:'통합과학Ⅰ', u:3}
-];
+
+// 영락고 2025학년도 입학생 선택과목 데이터
+var PALETTE_SUBJECTS = {
+  '1_1': [
+    {sG:'국어', sN:'공통국어1', u:4},
+    {sG:'수학', sN:'공통수학1', u:4},
+    {sG:'영어', sN:'공통영어1', u:4},
+    {sG:'사회(역사/도덕포함)', sN:'한국사1', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'통합사회1', u:4},
+    {sG:'과학', sN:'통합과학1', u:4},
+    {sG:'과학', sN:'과학탐구실험1', u:1},
+    {sG:'체육', sN:'체육1', u:2},
+    {sG:'예술', sN:'음악', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'정보', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'언어생활과 한자', u:3}
+  ],
+  '1_2': [
+    {sG:'국어', sN:'공통국어2', u:4},
+    {sG:'수학', sN:'공통수학2', u:4},
+    {sG:'영어', sN:'공통영어2', u:4},
+    {sG:'사회(역사/도덕포함)', sN:'한국사2', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'통합사회2', u:4},
+    {sG:'과학', sN:'통합과학2', u:4},
+    {sG:'과학', sN:'과학탐구실험2', u:1},
+    {sG:'체육', sN:'체육2', u:2},
+    {sG:'예술', sN:'미술', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'정보', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'언어생활과 한자', u:3}
+  ],
+  '2_1': [
+    {sG:'사회(역사/도덕포함)', sN:'세계사', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'사회와 문화', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'세계시민과 지리', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'현대 사회와 윤리', u:3},
+    {sG:'과학', sN:'물리학', u:3},
+    {sG:'과학', sN:'화학', u:3},
+    {sG:'과학', sN:'생명과학', u:3},
+    {sG:'과학', sN:'지구과학', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'중국어', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'일본어', u:3}
+  ],
+  '2_2': [
+    {sG:'수학', sN:'기하', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'경제', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'정치', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'한국지리 탐구', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'윤리와 사상', u:3},
+    {sG:'과학', sN:'역학과 에너지', u:3},
+    {sG:'과학', sN:'물질과 에너지', u:3},
+    {sG:'과학', sN:'세포와 물질대사', u:3},
+    {sG:'과학', sN:'지구시스템과학', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'데이터 과학', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'중국어 회화', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'일본어 회화', u:3}
+  ],
+  '3_1': [
+    {sG:'국어', sN:'주제 탐구 독서', u:3},
+    {sG:'영어', sN:'세계 문화와 영어', u:3},
+    {sG:'수학', sN:'미적분Ⅱ', u:3},
+    {sG:'수학', sN:'경제 수학', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'법과 사회', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'국제 관계의 이해', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'도시의 미래 탐구', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'인문학과 윤리', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'사회문제탐구', u:3},
+    {sG:'과학', sN:'전자기와 양자', u:3},
+    {sG:'과학', sN:'화학 반응의 세계', u:3},
+    {sG:'과학', sN:'생물의 유전', u:3},
+    {sG:'과학', sN:'행성우주과학', u:3},
+    {sG:'과학', sN:'융합과학탐구', u:3},
+    {sG:'체육', sN:'기초 체육 전공 실기', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'소프트웨어와 생활', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'교육의 이해', u:2},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'논술', u:2}
+  ],
+  '3_2': [
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'논리와 사고', u:2},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'인간과 철학', u:2},
+    {sG:'국어', sN:'문학과 영상', u:3},
+    {sG:'수학', sN:'실용통계', u:3},
+    {sG:'영어', sN:'미디어 영어', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'중국 문화', u:3},
+    {sG:'기술·가정/제2외국어/한문/교양', sN:'일본 문화', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'기후변화와 지속가능한 세계', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'역사로 탐구하는 현대 세계', u:3},
+    {sG:'사회(역사/도덕포함)', sN:'윤리문제탐구', u:3},
+    {sG:'과학', sN:'기후변화와 환경생태', u:3},
+    {sG:'과학', sN:'과학의역사와문화', u:3},
+    {sG:'체육', sN:'심화 체육 전공 실기', u:3}
+  ]
+};
+
+var CHIP_COLOR = {
+  '국어':    {bg:'#fef2f2', bd:'#fca5a5', sel:'#dc2626', txt:'#991b1b'},
+  '수학':    {bg:'#faf5ff', bd:'#c4b5fd', sel:'#7c3aed', txt:'#5b21b6'},
+  '영어':    {bg:'#fff7ed', bd:'#fdba74', sel:'#ea580c', txt:'#9a3412'},
+  '사회(역사/도덕포함)': {bg:'#eff6ff', bd:'#93c5fd', sel:'#2563eb', txt:'#1e40af'},
+  '과학':    {bg:'#f0fdf4', bd:'#86efac', sel:'#16a34a', txt:'#166534'},
+  '체육':    {bg:'#f0fdfa', bd:'#5eead4', sel:'#0d9488', txt:'#0f766e'},
+  '예술':    {bg:'#fdf4ff', bd:'#e879f9', sel:'#a21caf', txt:'#86198f'},
+  '기술·가정/제2외국어/한문/교양': {bg:'#f8fafc', bd:'#94a3b8', sel:'#475569', txt:'#334155'}
+};
+
+var paletteRowMap = {};
 var diRowIdx = 0;
 
 function switchInputMode(mode) {
@@ -1532,24 +1647,91 @@ function switchInputMode(mode) {
   document.getElementById('directZone').style.display = mode === 'direct' ? '' : 'none';
   document.getElementById('modeExcel').classList.toggle('on', mode === 'excel');
   document.getElementById('modeDirect').classList.toggle('on', mode === 'direct');
-  if (mode === 'direct' && document.getElementById('diRows').children.length === 0) {
-    initDirectRows();
+  if (mode === 'direct') renderSubjectPalette();
+}
+
+function renderSubjectPalette() {
+  var g   = document.getElementById('diGrade').value;
+  var sem = document.getElementById('diSem').value;
+  var key = g + '_' + sem;
+  var subjects = PALETTE_SUBJECTS[key] || [];
+
+  // 선택 초기화
+  document.getElementById('diRows').innerHTML = '';
+  paletteRowMap = {};
+  updateTableVisibility();
+
+  var pal = document.getElementById('diPalette');
+  if (!subjects.length) {
+    pal.innerHTML = '<p style="font-size:12px;color:var(--sub);padding:8px 0;">해당 학기 과목 정보가 없습니다.</p>';
+    return;
   }
+
+  // 교과별 그룹핑
+  var groups = {}, order = [];
+  subjects.forEach(function(s) {
+    if (!groups[s.sG]) { groups[s.sG] = []; order.push(s.sG); }
+    groups[s.sG].push(s);
+  });
+
+  var html = '<div class="palette-hint">📌 수강한 과목 칩을 클릭해 선택하세요. 다시 클릭하면 해제됩니다.</div>';
+  order.forEach(function(grp) {
+    var c = CHIP_COLOR[grp] || CHIP_COLOR['기술·가정/제2외국어/한문/교양'];
+    var label = grp === '기술·가정/제2외국어/한문/교양' ? '기타 (제2외국어·한문·교양·정보)' : grp;
+    html += '<div class="palette-group">';
+    html += '<div class="palette-group-label" style="color:'+c.txt+';">'+label+'</div>';
+    html += '<div class="palette-chips">';
+    groups[grp].forEach(function(s) {
+      var cid = 'chip_' + (s.sN).replace(/[^가-힣a-zA-Z0-9]/g,'_');
+      html += '<div class="palette-chip" id="'+cid+'"'
+            + ' data-sg="'+s.sG+'" data-sn="'+s.sN+'" data-u="'+s.u+'"'
+            + ' data-bg="'+c.bg+'" data-bd="'+c.bd+'" data-txt="'+c.txt+'" data-sel="'+c.sel+'"'
+            + ' style="background:'+c.bg+';border-color:'+c.bd+';color:'+c.txt+';"'
+            + ' onclick="togglePaletteChip(this)">'
+            + s.sN+' <span style="font-size:9px;opacity:.65;">('+s.u+'학점)</span>'
+            + '</div>';
+    });
+    html += '</div></div>';
+  });
+  pal.innerHTML = html;
 }
 
-function initDirectRows() {
-  var tbody = document.getElementById('diRows');
-  tbody.innerHTML = '';
-  DI_DEFAULTS.forEach(function(d) { addDirectRow(d.sG, d.sN, d.u); });
+function togglePaletteChip(el) {
+  var sN = el.dataset.sn;
+  var sG = el.dataset.sg;
+  var u  = parseFloat(el.dataset.u);
+
+  if (el.classList.contains('sel')) {
+    // 선택 해제
+    el.classList.remove('sel');
+    el.style.background  = el.dataset.bg;
+    el.style.borderColor = el.dataset.bd;
+    el.style.color       = el.dataset.txt;
+    var rowId = paletteRowMap[sN];
+    if (rowId) { var r = document.getElementById(rowId); if (r) r.remove(); delete paletteRowMap[sN]; }
+  } else {
+    // 선택
+    el.classList.add('sel');
+    el.style.background  = el.dataset.sel;
+    el.style.borderColor = el.dataset.sel;
+    el.style.color       = '#fff';
+    var rowId = addDirectRow(sG, sN, u, true);
+    paletteRowMap[sN] = rowId;
+  }
+  updateTableVisibility();
 }
 
-function addDirectRow(sG, sN, u) {
+function updateTableVisibility() {
+  var rows = document.getElementById('diRows').querySelectorAll('tr');
+  document.getElementById('diTableWrap').style.display = rows.length > 0 ? '' : 'none';
+}
+
+function addDirectRow(sG, sN, u, fromPalette) {
   var id = 'dr' + (diRowIdx++);
   var tbody = document.getElementById('diRows');
   var tr = document.createElement('tr');
   tr.id = id;
 
-  // 교과 선택 옵션
   var subjectOpts = [
     ['국어','국어'],['수학','수학'],['영어','영어'],
     ['사회(역사/도덕포함)','사회'],['과학','과학'],
@@ -1561,20 +1743,42 @@ function addDirectRow(sG, sN, u) {
   });
   selHtml += '</select>';
 
+  var nameCell = fromPalette
+    ? '<span style="font-size:12px;font-weight:800;color:var(--navy);">'+(sN||'')+'</span>'
+      + '<input type="hidden" id="'+id+'_sN" value="'+(sN||'')+'">'
+    : '<input class="di-inp" id="'+id+'_sN" placeholder="과목명" value="'+(sN||'')+'">';
+
+  var encodedSN = encodeURIComponent(sN || '');
   tr.innerHTML =
-    '<td><input class="di-inp" id="'+id+'_sN" placeholder="과목명" value="'+(sN||'')+'"><br>'+selHtml+'</td>'
+    '<td>'+nameCell+'<br>'+selHtml+'</td>'
     +'<td style="padding:3px 2px;"><input class="di-inp di-gr" id="'+id+'_u" type="number" min="1" max="8" value="'+(u||4)+'" style="padding:4px 2px;font-size:12px;text-align:center;width:100%;min-width:30px;"></td>'
     +'<td><input class="di-inp" id="'+id+'_rank" type="number" min="1" placeholder="" style="color:var(--blue);font-size:13px;font-weight:800;min-width:52px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
     +'<td><input class="di-inp" id="'+id+'_t" type="number" min="1" placeholder="" style="font-size:12px;min-width:52px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
     +'<td><span id="'+id+'_grDisp" style="font-size:15px;font-weight:900;color:var(--red);">-</span></td>'
-    +'<td><button class="di-del" onclick="removeDirectRow(\''+id+'\')">✕</button></td>';
+    +'<td><button class="di-del" onclick="removeDirectRow(\''+id+'\',\''+encodedSN+'\')">✕</button></td>';
 
   tbody.appendChild(tr);
+  updateTableVisibility();
+  return id;
 }
 
-function removeDirectRow(id) {
+function removeDirectRow(id, encodedSN) {
   var tr = document.getElementById(id);
   if (tr) tr.remove();
+  if (encodedSN) {
+    var sN = decodeURIComponent(encodedSN);
+    delete paletteRowMap[sN];
+    // 팔레트 칩 선택 해제
+    document.querySelectorAll('.palette-chip.sel').forEach(function(chip) {
+      if (chip.dataset.sn === sN) {
+        chip.classList.remove('sel');
+        chip.style.background  = chip.dataset.bg;
+        chip.style.borderColor = chip.dataset.bd;
+        chip.style.color       = chip.dataset.txt;
+      }
+    });
+  }
+  updateTableVisibility();
 }
 
 // 석차 → 등급 실시간 계산 표시
