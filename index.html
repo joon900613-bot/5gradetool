@@ -748,7 +748,7 @@ function eP(r, m, s) {
   return ((z > 0 ? (1-p) : p) * 100).toFixed(1);
 }
 
-// 석차→등급 변환 (누적 비율 기준)
+// 석차→등급 변환 (9등급제, 누적 비율 기준)
 var CUTS = [0, 4, 11, 23, 40, 60, 77, 89, 96, 100];
 function rankToGrade(rank, total) {
   var pct = rank / total * 100;
@@ -756,6 +756,16 @@ function rankToGrade(rank, total) {
     if (pct <= CUTS[g]) return g;
   }
   return 9;
+}
+
+// 석차→등급 변환 (2022 개정 5등급제, 직접입력 전용)
+var CUTS5 = [0, 10, 34, 66, 90, 100];
+function rankToGrade5(rank, total) {
+  var pct = rank / total * 100;
+  for (var g = 1; g <= 5; g++) {
+    if (pct <= CUTS5[g]) return g;
+  }
+  return 5;
 }
 
 // 시뮬레이션 적용 등급 계산
@@ -1656,11 +1666,7 @@ function renderSubjectPalette() {
   var key = g + '_' + sem;
   var subjects = PALETTE_SUBJECTS[key] || [];
 
-  // 선택 초기화
-  document.getElementById('diRows').innerHTML = '';
-  paletteRowMap = {};
-  updateTableVisibility();
-
+  // 테이블은 유지, 팔레트만 교체
   var pal = document.getElementById('diPalette');
   if (!subjects.length) {
     pal.innerHTML = '<p style="font-size:12px;color:var(--sub);padding:8px 0;">해당 학기 과목 정보가 없습니다.</p>';
@@ -1682,11 +1688,16 @@ function renderSubjectPalette() {
     html += '<div class="palette-group-label" style="color:'+c.txt+';">'+label+'</div>';
     html += '<div class="palette-chips">';
     groups[grp].forEach(function(s) {
-      var cid = 'chip_' + (s.sN).replace(/[^가-힣a-zA-Z0-9]/g,'_');
-      html += '<div class="palette-chip" id="'+cid+'"'
-            + ' data-sg="'+s.sG+'" data-sn="'+s.sN+'" data-u="'+s.u+'"'
+      var ck  = key + '_' + s.sN; // composite key: 학년_학기_과목명
+      var cid = 'chip_' + ck.replace(/[^가-힣a-zA-Z0-9]/g,'_');
+      var isSel = !!paletteRowMap[ck];
+      var chipStyle = isSel
+        ? 'background:'+c.sel+';border-color:'+c.sel+';color:#fff;'
+        : 'background:'+c.bg+';border-color:'+c.bd+';color:'+c.txt+';';
+      html += '<div class="palette-chip'+(isSel?' sel':'')+'" id="'+cid+'"'
+            + ' data-sg="'+s.sG+'" data-sn="'+s.sN+'" data-u="'+s.u+'" data-ck="'+ck+'"'
             + ' data-bg="'+c.bg+'" data-bd="'+c.bd+'" data-txt="'+c.txt+'" data-sel="'+c.sel+'"'
-            + ' style="background:'+c.bg+';border-color:'+c.bd+';color:'+c.txt+';"'
+            + ' style="'+chipStyle+'"'
             + ' onclick="togglePaletteChip(this)">'
             + s.sN+' <span style="font-size:9px;opacity:.65;">('+s.u+'학점)</span>'
             + '</div>';
@@ -1700,23 +1711,22 @@ function togglePaletteChip(el) {
   var sN = el.dataset.sn;
   var sG = el.dataset.sg;
   var u  = parseFloat(el.dataset.u);
+  var ck = el.dataset.ck;
 
   if (el.classList.contains('sel')) {
-    // 선택 해제
     el.classList.remove('sel');
     el.style.background  = el.dataset.bg;
     el.style.borderColor = el.dataset.bd;
     el.style.color       = el.dataset.txt;
-    var rowId = paletteRowMap[sN];
-    if (rowId) { var r = document.getElementById(rowId); if (r) r.remove(); delete paletteRowMap[sN]; }
+    var rowId = paletteRowMap[ck];
+    if (rowId) { var r = document.getElementById(rowId); if (r) r.remove(); delete paletteRowMap[ck]; }
   } else {
-    // 선택
     el.classList.add('sel');
     el.style.background  = el.dataset.sel;
     el.style.borderColor = el.dataset.sel;
     el.style.color       = '#fff';
-    var rowId = addDirectRow(sG, sN, u, true);
-    paletteRowMap[sN] = rowId;
+    var rowId = addDirectRow(sG, sN, u, true, ck);
+    paletteRowMap[ck] = rowId;
   }
   updateTableVisibility();
 }
@@ -1726,7 +1736,7 @@ function updateTableVisibility() {
   document.getElementById('diTableWrap').style.display = rows.length > 0 ? '' : 'none';
 }
 
-function addDirectRow(sG, sN, u, fromPalette) {
+function addDirectRow(sG, sN, u, fromPalette, ck) {
   var id = 'dr' + (diRowIdx++);
   var tbody = document.getElementById('diRows');
   var tr = document.createElement('tr');
@@ -1748,29 +1758,28 @@ function addDirectRow(sG, sN, u, fromPalette) {
       + '<input type="hidden" id="'+id+'_sN" value="'+(sN||'')+'">'
     : '<input class="di-inp" id="'+id+'_sN" placeholder="과목명" value="'+(sN||'')+'">';
 
-  var encodedSN = encodeURIComponent(sN || '');
+  var encodedCK = encodeURIComponent(ck || '');
   tr.innerHTML =
     '<td>'+nameCell+'<br>'+selHtml+'</td>'
     +'<td style="padding:3px 2px;"><input class="di-inp di-gr" id="'+id+'_u" type="number" min="1" max="8" value="'+(u||4)+'" style="padding:4px 2px;font-size:12px;text-align:center;width:100%;min-width:30px;"></td>'
     +'<td><input class="di-inp" id="'+id+'_rank" type="number" min="1" placeholder="" style="color:var(--blue);font-size:13px;font-weight:800;min-width:52px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
     +'<td><input class="di-inp" id="'+id+'_t" type="number" min="1" placeholder="" style="font-size:12px;min-width:52px;" oninput="calcRowGrade(\''+id+'\')" ></td>'
     +'<td><span id="'+id+'_grDisp" style="font-size:15px;font-weight:900;color:var(--red);">-</span></td>'
-    +'<td><button class="di-del" onclick="removeDirectRow(\''+id+'\',\''+encodedSN+'\')">✕</button></td>';
+    +'<td><button class="di-del" onclick="removeDirectRow(\''+id+'\',\''+encodedCK+'\')">✕</button></td>';
 
   tbody.appendChild(tr);
   updateTableVisibility();
   return id;
 }
 
-function removeDirectRow(id, encodedSN) {
+function removeDirectRow(id, encodedCK) {
   var tr = document.getElementById(id);
   if (tr) tr.remove();
-  if (encodedSN) {
-    var sN = decodeURIComponent(encodedSN);
-    delete paletteRowMap[sN];
-    // 팔레트 칩 선택 해제
+  if (encodedCK) {
+    var ck = decodeURIComponent(encodedCK);
+    delete paletteRowMap[ck];
     document.querySelectorAll('.palette-chip.sel').forEach(function(chip) {
-      if (chip.dataset.sn === sN) {
+      if (chip.dataset.ck === ck) {
         chip.classList.remove('sel');
         chip.style.background  = chip.dataset.bg;
         chip.style.borderColor = chip.dataset.bd;
@@ -1781,7 +1790,7 @@ function removeDirectRow(id, encodedSN) {
   updateTableVisibility();
 }
 
-// 석차 → 등급 실시간 계산 표시
+// 석차 → 등급 실시간 계산 표시 (직접입력: 5등급제)
 function calcRowGrade(id) {
   var rankEl = document.getElementById(id+'_rank');
   var tEl    = document.getElementById(id+'_t');
@@ -1790,9 +1799,9 @@ function calcRowGrade(id) {
   var rank = parseInt(rankEl.value);
   var t    = parseInt(tEl.value);
   if (!isNaN(rank) && !isNaN(t) && t > 0 && rank >= 1 && rank <= t) {
-    var g = rankToGrade(rank, t);
+    var g = rankToGrade5(rank, t);
     dispEl.textContent = g + '등급';
-    var cls = g <= 2 ? '#15803d' : g <= 4 ? '#d97706' : '#b91c1c';
+    var cls = g === 1 ? '#15803d' : g === 2 ? '#4ade80' : g === 3 ? '#d97706' : g === 4 ? '#f97316' : '#b91c1c';
     dispEl.style.color = cls;
   } else {
     dispEl.textContent = '-';
@@ -1818,7 +1827,7 @@ function startDirectAnalysis() {
     if (isNaN(rank) || rank < 1) { errors.push(sN + ': 석차 미입력'); return; }
     if (isNaN(t)    || t < 1)   { errors.push(sN + ': 재적수 미입력'); return; }
     if (rank > t)               { errors.push(sN + ': 석차(' + rank + ')가 재적수(' + t + ')보다 큼'); return; }
-    var grInt = rankToGrade(rank, t);
+    var grInt = rankToGrade5(rank, t);
     newData.push({
       g: g, sm: sem, sG: sG, sN: sN, u: u,
       r: '-', m: '-', d: '-', gT: '-',
